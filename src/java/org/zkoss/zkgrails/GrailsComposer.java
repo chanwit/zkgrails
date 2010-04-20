@@ -56,7 +56,7 @@ public class GrailsComposer extends org.zkoss.zk.ui.util.GenericForwardComposer 
           if(c instanceof Closure) {
               ((Closure)c).call(comp);
           }
-        } catch(BeansException e) {}
+        } catch(BeansException e) { /* do nothing */ }
 
         try {
             ApplicationContext ctx = SpringUtil.getApplicationContext();
@@ -71,9 +71,29 @@ public class GrailsComposer extends org.zkoss.zk.ui.util.GenericForwardComposer 
                 ScaffoldingTemplate template = (ScaffoldingTemplate) ctx.getBean(
                         "zkgrailsScaffoldingTemplate",
                         ScaffoldingTemplate.class);
-                template.initComponents((Class<?>)scaffold, (Component)comp, app);
+
+                if(scaffold instanceof Boolean) {
+                    if(((Boolean)scaffold) == true) {
+                        //
+                        // Use this to find class name
+                        // and cut "Composer" off.
+                        //
+                        String name = this.getClass()
+                                        .getName()
+                                        .replaceAll("Composer", "");
+
+                        //
+                        // Look for the domain class.
+                        //
+                        GrailsClass domainClass = app.getArtefact("Domain", name);
+                        Class<?> klass = domainClass.getClazz();
+                        template.initComponents(klass, (Component)comp, app);
+                    }
+                } else {
+                    template.initComponents((Class<?>)scaffold, (Component)comp, app);
+                }
             }
-        } catch(BeansException e) {}
+        } catch(BeansException e) { /* do nothing */}
     }
 
 
