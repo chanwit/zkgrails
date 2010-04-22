@@ -3,7 +3,7 @@ import org.zkoss.zk.ui.event.EventListener
 import grails.util.Environment
 import org.zkoss.zkgrails.scaffolding.DefaultScaffoldingTemplate
 
-class ZkGrailsPlugin {
+class ZkEeGrailsPlugin {
     // the plugin version
     def version = "1.0-M4"
     // the version or versions of Grails the plugin is designed for
@@ -34,7 +34,7 @@ class ZkGrailsPlugin {
     // TODO Fill in these fields
     def author = "chanwit"
     def authorEmail = "chanwit@gmail.com"
-    def title = "ZKGrails: ZK plugin for Grails"
+    def title = "ZK-EE for Grails: ZK plugin Enterprise Edition for Grails"
     def description = '''\\
 Originated from Flyisland ZK Grails Plugin,
 this plugin adds ZK Ajax framework (www.zkoss.org) support to Grails applications.
