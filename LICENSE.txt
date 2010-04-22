@@ -1,1 +1,1 @@
-This plugin is released under LGPL.
+This plugin is released under GPL.
