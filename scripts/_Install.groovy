@@ -11,5 +11,5 @@
 def targetFile = "${basedir}/web-app/WEB-INF/zk.xml"
 
 if(! (new File(targetFile).exists())) {
-    ant.copy(file:"${zkPluginDir}/scripts/zk.xml", todir:"${basedir}/web-app/WEB-INF/", overwrite: true)
+    ant.copy(file:"${zkEePluginDir}/scripts/zk.xml", todir:"${basedir}/web-app/WEB-INF/", overwrite: true)
 }
