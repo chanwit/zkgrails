@@ -8,6 +8,11 @@ import org.springframework.web.context.support.WebApplicationContextUtils
 
 class ZkBuilder {
 
+    private static ZK_THAI_MAP = new ConcurrentHashMap([
+        "หน้าต่าง": "window",
+        "ปุ่มกด": "button",
+        "ป้าย": "label"
+    ])
     private static ZKNODES = new ConcurrentHashMap();
 
     def page
@@ -26,6 +31,10 @@ class ZkBuilder {
     }
 
     boolean getTag(String tag) {
+        if(ZK_THAI_MAP.containsKey(tag)) {
+            tag = ZK_THAI_MAP[tag]
+        }
+
         if(ZKNODES.containsKey(tag))
             return true
 
@@ -179,6 +188,8 @@ class ZkBuilder {
         if(use) {
             zkObject = (use as Class).newInstance()
         } else {
+            if(ZK_THAI_MAP.containsKey(name))
+                name = ZK_THAI_MAP[name]
             zkObject = ZKNODES[name].newInstance()
         }
         attachId(id, zkObject)
@@ -186,6 +197,9 @@ class ZkBuilder {
         addAttributeEvents(zkObject, args)
 
         args.each {key, value ->
+            if(ZK_THAI_MAP.containsKey(key)) {
+                key = ZK_THAI_MAP[key]
+            }
             zkObject[key] = value
         }
         if (parent) {

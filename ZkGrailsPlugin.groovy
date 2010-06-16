@@ -6,7 +6,7 @@ import org.zkoss.zkgrails.scaffolding.DefaultScaffoldingTemplate
 
 class ZkGrailsPlugin {
     // the plugin version
-    def version = "1.0-M5"
+    def version = "1.0-TH-M5"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.1 > *"
     // the other plugins this plugin depends on
@@ -47,10 +47,9 @@ class ZkGrailsPlugin {
     // TODO Fill in these fields
     def author = "chanwit"
     def authorEmail = "chanwit@gmail.com"
-    def title = "ZKGrails: ZK plugin for Grails"
+    def title = "ZKGrails: ZK plugin for Grails Thai Edition"
     def description = '''\\
-Originated from Flyisland ZK Grails Plugin,
-this plugin adds ZK Ajax framework (www.zkoss.org) support to Grails applications.
+The Thai version of ZK plugin. Support ZK widgets using Thai syntax.
 '''
 
     // URL to the plugin's documentation
