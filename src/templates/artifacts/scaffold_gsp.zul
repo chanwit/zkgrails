@@ -14,7 +14,9 @@
             <image src="${z.resource(dir:'images', file:'grails_logo.png')}"/>
         </hbox>
 
-        <vbox id="scaffoldingBox"/>
+        <vbox id="scaffoldingBox">
+            ${test}
+        </vbox>
 
     </window>
 

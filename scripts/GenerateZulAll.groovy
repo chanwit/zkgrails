@@ -24,9 +24,51 @@
 
 import grails.util.GrailsNameUtils
 import org.codehaus.groovy.grails.commons.GrailsResourceUtils
+import org.springframework.core.io.ByteArrayResource
+
+import org.codehaus.groovy.grails.scaffolding.*
 
 includeTargets << grailsScript("_GrailsInit")
 includeTargets << grailsScript("_GrailsCreateArtifacts")
+includeTargets << grailsScript("_GrailsBootstrap")
+
+
+target(generateForOne: "Generates controllers and views for only one domain class.") {
+    depends(loadApp)
+
+    def name = generateForName
+    name = name.indexOf('.') > -1 ? name : GrailsNameUtils.getClassNameRepresentation(name)
+    def domainClass = grailsApp.getDomainClass(name)
+
+    if(!domainClass) {
+        println "Domain class not found in grails-app/domain, trying hibernate mapped classes..."
+        bootstrap()
+        domainClass = grailsApp.getDomainClass(name)
+    }
+
+    if(domainClass) {
+        generateForDomainClass(domainClass)
+        event("StatusFinal", ["Finished generation for domain class ${domainClass.fullName}"])
+    }
+    else {
+        event("StatusFinal", ["No domain class found for name ${name}. Please try again and enter a valid domain class name"])
+    }
+}
+
+def generateForDomainClass(domainClass) {
+    def templateGenerator = new DefaultGrailsTemplateGenerator(classLoader)
+    if(generateViews) {
+        event("StatusUpdate", ["Generating views for domain class ${domainClass.fullName}"])
+        templateGenerator.generateViews(domainClass, basedir)
+        event("GenerateViewsEnd", [domainClass.fullName])
+    }
+    if(generateController) {
+        event("StatusUpdate", ["Generating controller for domain class ${domainClass.fullName}"])
+        templateGenerator.generateController(domainClass, basedir)
+        createUnitTest(name: domainClass.fullName, suffix: "Controller", superClass: "ControllerUnitTestCase")
+        event("GenerateControllerEnd", [domainClass.fullName])
+    }
+}
 
 target ('default': "Creates a new zul page") {
     depends(checkVersion, parseArguments)
@@ -34,18 +76,22 @@ target ('default': "Creates a new zul page") {
     def gsp = ctx.getBean("groovyPagesTemplateEngine");
 
     byte[] buffer = new byte[(int)file.length()];
-    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+    BufferedInputStream bis = new BufferedInputStream(
+        new FileInputStream("$zkPluginDir/src/templates/artifacts/scaffold_gsp.zul");
+    )
     bis.read(buffer);
     
     String encoding = (String)ConfigurationHolder.getFlatConfig().get(CONFIG_OPTION_GSP_ENCODING);
-    if(encoding == null) encoding = UTF_8_ENCODING;        
-    
+    if(encoding == null) encoding = UTF_8_ENCODING;
     String bufferStr = new String(buffer, encoding);
-    bufferStr = bufferStr.replaceAll("@\\{", "\\$\\{'@'\\}\\{");        
+
+    bufferStr = bufferStr.replaceAll('@\\{', '\\$\\{\'@\'\\}\\{');        
 
     def template = gsp.createTemplate(new ByteArrayResource(bufferStr.getBytes(encoding)));
 
-    def w = template.make();
-    def sw = new StringWriter();
-    w.writeTo(new PrintWriter(sw));
+    def w = template.make([test: "hello"])
+    def sw = new StringWriter()
+    w.writeTo(new PrintWriter(sw))
+    println sw.toString()
 }
+
