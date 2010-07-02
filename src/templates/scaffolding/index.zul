@@ -1,3 +1,4 @@
+<% import grails.persistence.Event %>
 <?xml version="1.0" encoding="UTF-8"?>
 <?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
 <?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
@@ -8,14 +9,58 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
 
-    <window apply="@artifact.name@">
+    <window id="wndMain" apply="${packageName}${domainClass.propertyName}Composer">
 
         <hbox>
-            <image src="${z.resource(dir:'images', file:'grails_logo.png')}"/>
+            <image src="\${z.resource(dir:'images', file:'grails_logo.png')}"/>
         </hbox>
 
         <vbox id="scaffoldingBox">
-            ${test}
+            <listbox id="lst${domainClass.propertyName}" 
+                     height="150px" multiple="true" rows="8">
+                 <listhead>
+                     <%  excludedProps = Event.allEvents.toList() << 'version'
+                        props = domainClass.properties.findAll { !excludedProps.contains(it.name) && it.type != Set.class }
+                        Collections.sort(props, comparator.constructors[0].newInstance([domainClass] as Object[]))                        
+                        def i = 0
+                        props.each { p ->
+                            def cp = domainClass.constrainedProperties[p.name]
+                            if (cp?.display==true && i < 6) {
+                                i++
+                                if (p.isAssociation()) { %>
+                    <listheader label="${p.naturalName}"/>
+                     <%         } else { %>
+                    <listheader label="${p.naturalName}"/>
+                     <%  }   }   } %>                     
+                 </listhead>
+            </listbox>
+            <paging id="pag${domainClass.propertyName}" pageSize="8"/>
+            <separator/>
+            <groupbox>
+                <caption label="${packageName}${domainClass.name}"/>
+                <toolbar>
+                    <toolbarbutton id="btnAdd" label="New"
+                        image="\${z.resource(dir:'images', file:'skin/database_add.png')}"
+                        width="75px"
+                    />
+                    <toolbarbutton id="btnUpdate" label="Update"
+                        image="\${z.resource(dir:'images', file:'skin/database_save.png')}"
+                        width="75px"
+                    />
+                    <toolbarbutton id="btnDelete" label="Delete"
+                        image="\${z.resource(dir:'images', file:'skin/database_delete.png')}"
+                        width="75px"
+                    />
+                    <toolbarbutton id="btnRefresh" label="Refresh"
+                        image="\${z.resource(dir:'images', file:'skin/database_table.png')}"
+                        width="75px"
+                    />
+                </toolbar>
+                <separator/>
+                <grid>
+                    
+                </grid>
+            </groupbox>
         </vbox>
 
     </window>

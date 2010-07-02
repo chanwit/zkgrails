@@ -18,12 +18,172 @@
  * Gant script that generates a CRUD controller and matching views for a given domain class
  * 
  * @author Graeme Rocher
+ * @author Chanwit Kaewkasi
  *
- * @since 0.4
+ * @since 1.0-M5
  */
 
 import org.zkoss.zkgrails.scaffolding.*
 import grails.util.GrailsNameUtils
+
+import grails.util.BuildSettingsHolder
+import groovy.text.SimpleTemplateEngine
+import groovy.text.Template
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import org.codehaus.groovy.grails.commons.GrailsDomainClass
+import org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator
+import org.codehaus.groovy.grails.scaffolding.GrailsTemplateGenerator
+import org.springframework.context.ResourceLoaderAware
+import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.FileSystemResource
+import org.springframework.core.io.ResourceLoader
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
+import org.codehaus.groovy.grails.cli.CommandLineHelper
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.codehaus.groovy.grails.plugins.PluginManagerHolder
+
+class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
+
+    static final Log LOG = LogFactory.getLog(DefaultZKGrailsTemplateGenerator.class)
+
+    String basedir = "."
+    boolean overwrite = false
+    def engine = new SimpleTemplateEngine()
+    ResourceLoader resourceLoader
+    Template renderEditorTemplate
+    String domainSuffix = 'Instance'
+
+
+    /**
+     * Used by the scripts so that they can pass in their AntBuilder
+     * instance.
+     */
+    DefaultZKGrailsTemplateGenerator(ClassLoader classLoader) {
+        engine = new SimpleTemplateEngine(classLoader)        
+	    def suffix = ConfigurationHolder.config?.grails?.scaffolding?.templates?.domainSuffix
+	    if (suffix != [:]) {
+	        domainSuffix = suffix
+		}
+    }
+
+    /**
+     * Creates an instance
+     */
+    DefaultZKGrailsTemplateGenerator() {
+    }
+
+    void setResourceLoader(ResourceLoader rl) {
+        LOG.info "Scaffolding template generator set to use resource loader ${rl}"
+        this.resourceLoader = rl
+    }
+
+    // a closure that uses the type to render the appropriate editor
+    def renderEditor = {property ->
+        def domainClass = property.domainClass
+        def cp = domainClass.constrainedProperties[property.name]
+
+        if (!renderEditorTemplate) {
+            // create template once for performance
+            def templateText = getTemplateText("renderEditor.template")
+            renderEditorTemplate = engine.createTemplate(templateText)
+        }
+
+        def binding = [property: property, domainClass: domainClass, cp: cp, domainInstance:getPropertyName(domainClass)]
+        return renderEditorTemplate.make(binding).toString()
+    }
+
+    public void generateZul(GrailsDomainClass domainClass, String destdir) {
+        if (!destdir)
+            throw new IllegalArgumentException("Argument [destdir] not specified")
+
+        def zulDir = new File("${destdir}/web-app/${domainClass.propertyName}")
+        if (!zulDir.exists())
+            zulDir.mkdirs()
+        File destFile = new File("${zulDir.absolutePath}/index.zul")
+        if (canWrite(destFile)) {
+            destFile.withWriter {Writer writer ->
+                generateZul domainClass, writer
+            }
+        }
+    }
+
+    void generateZul(GrailsDomainClass domainClass, Writer out) {
+        def templateText = getTemplateText("index.zul")
+
+        def t = engine.createTemplate(templateText)
+        def multiPart = domainClass.properties.find {it.type == ([] as Byte[]).class || it.type == ([] as byte[]).class}
+
+        def packageName = domainClass.packageName ? domainClass.packageName + "." : ""
+        def binding = [packageName: packageName,
+                domainClass: domainClass,
+                multiPart: multiPart,
+                className: domainClass.shortName,
+                propertyName:  getPropertyName(domainClass),
+                renderEditor: renderEditor,
+                comparator: org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator.class]
+
+        t.make(binding).writeTo(out)
+    }    
+
+    public void generateComposer(GrailsDomainClass domainClass, String destdir) {
+        println "generate 1 composer"
+    }
+    
+    private getTemplateText(String template) {
+        def application = ApplicationHolder.getApplication()
+        def pluginManager = PluginManagerHolder.getPluginManager()        
+        // first check for presence of template in application
+        if (resourceLoader && application?.warDeployed) {
+            return resourceLoader.getResource("/WEB-INF/templates/scaffolding/${template}").inputStream.text
+        }
+        else {
+            def templateFile = new FileSystemResource("${basedir}/src/templates/scaffolding/${template}")
+            if (!templateFile.exists()) {
+                if(pluginManager.hasGrailsPlugin("zk")) {
+                    def zkPluginDir = pluginManager.getGrailsPlugin("zk").getPluginPath()
+                    templateFile = new FileSystemResource("${zkPluginDir}/src/templates/scaffolding/${template}")
+                } else {
+                    templateFile = new ClassPathResource("src/grails/templates/scaffolding/${template}")
+                }
+                /*
+                // template not found in application, use default template
+                def grailsHome = BuildSettingsHolder.settings?.grailsHome
+
+                if (grailsHome) {
+                    templateFile = new FileSystemResource("${grailsHome}/src/grails/templates/scaffolding/${template}")
+                }
+                else {
+                    templateFile = new ClassPathResource("src/grails/templates/scaffolding/${template}")
+                }
+                */
+            }
+            return templateFile.inputStream.getText()
+        }
+    }
+
+    private String getPropertyName(GrailsDomainClass domainClass) {
+        return "${domainClass.propertyName}${domainSuffix}"
+    }
+
+    private helper = new CommandLineHelper()
+    private canWrite(testFile) {
+        if (!overwrite && testFile.exists()) {
+            try {
+                def response = helper.userInput("File ${testFile} already exists. Overwrite?",['y','n','a'] as String[])
+                overwrite = overwrite || response == "a"
+                return overwrite || response == "y"
+            }
+            catch (Exception e) {
+                // failure to read from standard in means we're probably running from an automation tool like a build server
+                return true
+            }
+        }
+        return true
+    }
+    
+}
 
 includeTargets << grailsScript("_GrailsBootstrap")
 includeTargets << grailsScript("_GrailsCreateArtifacts")
