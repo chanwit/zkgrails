@@ -33,23 +33,26 @@
 
     private renderStringEditor(domainClass, property) {
         if (!cp) {
-            return "<g:textField name=\"${property.name}\" value=\"\${${domainInstance}?.${property.name}}\" />"
+            return "<textbox id=\"fd_${property.name}\" cols: \"25\" />"
         }
         else {
             if ("textarea" == cp.widget || (cp.maxSize > 250 && !cp.password && !cp.inList)) {
-                return "<g:textArea name=\"${property.name}\" cols=\"40\" rows=\"5\" value=\"\${${domainInstance}?.${property.name}}\" />"
+                return "<textbox id=\"fd_${property.name}\" multiline=\"true\" cols=\"40\" rows=\"5\" />"
             }
             else {
                 if (cp.inList) {
-                    return "<g:select name=\"${property.name}\" from=\"\${${domainInstance}.constraints.${property.name}.inList}\" value=\"\${${domainInstance}?.${property.name}}\" valueMessagePrefix=\"${domainClass.propertyName}.${property?.name}\" ${renderNoSelection(property)} />"
+                    // TODO should be combobox
+                    return "<textbox id=\"fd_${property.name}\" cols: \"25\" />"
+                    // return "<g:select name=\"${property.name}\" from=\"\${${domainInstance}.constraints.${property.name}.inList}\" value=\"\${${domainInstance}?.${property.name}}\" valueMessagePrefix=\"${domainClass.propertyName}.${property?.name}\" ${renderNoSelection(property)} />"
                 }
                 else {
-                    def sb = new StringBuffer("<g:")
-                    cp.password ? sb << "passwordField " : sb << "textField "
-                    sb << "name=\"${property.name}\" "
+                    def sb = new StringBuffer("<textbox ")
+                    sb << "id=\"fd_${property.name}\" "
+                    cp.password ? sb << "type=\"password\" " : sb << ""                    
                     if (cp.maxSize) sb << "maxlength=\"${cp.maxSize}\" "
-                    if (!cp.editable) sb << "readonly=\"readonly\" "
-                    sb << "value=\"\${${domainInstance}?.${property.name}}\" />"
+                    if (!cp.editable) sb << "readonly=\"true\" "
+                    // sb << "value=\"\${${domainInstance}?.${property.name}}\"
+                    sb << " />"
                     return sb.toString()
                 }
             }
