@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.codehaus.groovy.grails.scaffolding
+package org.zkoss.zkgrails.scaffolding
 
 import grails.util.BuildSettingsHolder
 import groovy.text.SimpleTemplateEngine
@@ -55,7 +55,7 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
      * Used by the scripts so that they can pass in their AntBuilder
      * instance.
      */
-    DefaultGrailsTemplateGenerator(ClassLoader classLoader) {
+    DefaultZKGrailsTemplateGenerator(ClassLoader classLoader) {
         engine = new SimpleTemplateEngine(classLoader)        
 	    def suffix = ConfigurationHolder.config?.grails?.scaffolding?.templates?.domainSuffix
 	    if (suffix != [:]) {
@@ -66,7 +66,7 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
     /**
      * Creates an instance
      */
-    DefaultGrailsTemplateGenerator() {
+    DefaultZKGrailsTemplateGenerator() {
     }
 
 
@@ -90,6 +90,16 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
         def binding = [property: property, domainClass: domainClass, cp: cp, domainInstance:getPropertyName(domainClass)]
         return renderEditorTemplate.make(binding).toString()
     }
+
+    public void generateZul(GrailsDomainClass domainClass, String destdir) {
+        println "generate zul"
+    }
+
+    public void generateComposer(GrailsDomainClass domainClass, String destdir) {
+        println "generate composer"
+    }
+
+    /*
     
     public void generateZul(GrailsDomainClass domainClass, String destdir) {
         if (!destdir)
@@ -383,4 +393,5 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
         return resources
     }
 
+    */
 }
