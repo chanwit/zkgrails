@@ -90,6 +90,23 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
         def binding = [property: property, domainClass: domainClass, cp: cp, domainInstance:getPropertyName(domainClass)]
         return renderEditorTemplate.make(binding).toString()
     }
+    
+    public void generateZul(GrailsDomainClass domainClass, String destdir) {
+        if (!destdir)
+            throw new IllegalArgumentException("Argument [destdir] not specified")
+
+        def viewsDir = new File("${destdir}/grails-app/views/${domainClass.propertyName}")
+        if (!viewsDir.exists())
+            viewsDir.mkdirs()
+
+        def templateNames = getTemplateNames()
+
+        for(t in templateNames) {
+           LOG.info "Generating $t view for domain class [${domainClass.fullName}]"
+           generateView domainClass, t, viewsDir.absolutePath
+        }
+
+    }
 
     public void generateViews(GrailsDomainClass domainClass, String destdir) {
         if (!destdir)
@@ -106,6 +123,32 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
            generateView domainClass, t, viewsDir.absolutePath
         }
 
+    }
+    
+    public void generateComposer(GrailsDomainClass domainClass, String destdir) {
+        if (!destdir)
+            throw new IllegalArgumentException("Argument [destdir] not specified")
+
+        if (domainClass) {
+            def fullName = domainClass.fullName
+            def pkg = ""
+            def pos = fullName.lastIndexOf('.')
+            if (pos != -1) {
+                // Package name with trailing '.'
+                pkg = fullName[0..pos]
+            }
+
+            def destFile = new File("${destdir}/grails-app/composers/${pkg.replace('.' as char, '/' as char)}${domainClass.shortName}Composer.groovy")
+            if (canWrite(destFile)) {
+                destFile.parentFile.mkdirs()
+
+                destFile.withWriter {w ->
+                    generateComposer(domainClass, w)
+                }
+
+                LOG.info("Composer generated at ${destFile}")
+            }
+        }        
     }
 
     public void generateController(GrailsDomainClass domainClass, String destdir) {
@@ -184,6 +227,24 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
             }
         }
     }
+    
+    void generateZul(GrailsDomainClass domainClass, Writer out) {
+        def templateText = getTemplateText("index.zul")
+
+        def t = engine.createTemplate(templateText)
+        def multiPart = domainClass.properties.find {it.type == ([] as Byte[]).class || it.type == ([] as byte[]).class}
+
+        def packageName = domainClass.packageName ? "<%@ page import=\"${domainClass.fullName}\" %>" : ""
+        def binding = [packageName: packageName,
+                domainClass: domainClass,
+                multiPart: multiPart,
+                className: domainClass.shortName,
+                propertyName:  getPropertyName(domainClass),
+                renderEditor: renderEditor,
+                comparator: org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator.class]
+
+        t.make(binding).writeTo(out)
+    }    
 
     void generateView(GrailsDomainClass domainClass, String viewName, Writer out) {
         def templateText = getTemplateText("${viewName}.gsp")
@@ -202,6 +263,19 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
 
         t.make(binding).writeTo(out)
     }
+    
+    void generateComposer(GrailsDomainClass domainClass, Writer out) {
+        def templateText = getTemplateText("Composer.groovy")
+
+        def binding = [packageName: domainClass.packageName,
+                domainClass: domainClass,
+                className: domainClass.shortName,
+                propertyName: getPropertyName(domainClass),
+                comparator: org.codehaus.groovy.grails.scaffolding.DomainClassPropertyComparator.class]
+
+        def t = engine.createTemplate(templateText)
+        t.make(binding).writeTo(out)
+    }    
 
     void generateController(GrailsDomainClass domainClass, Writer out) {
         def templateText = getTemplateText("Controller.groovy")
