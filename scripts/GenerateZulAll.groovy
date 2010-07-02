@@ -86,11 +86,13 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
 
         if (!renderEditorTemplate) {
             // create template once for performance
-            def templateText = getTemplateText("renderEditor.template")
+            def templateText = getTemplateText("renderZulEditor.template")
             renderEditorTemplate = engine.createTemplate(templateText)
         }
 
-        def binding = [property: property, domainClass: domainClass, cp: cp, domainInstance:getPropertyName(domainClass)]
+        def binding = [property: property, 
+                       domainClass: domainClass, 
+                       cp: cp, domainInstance:getPropertyName(domainClass)]
         return renderEditorTemplate.make(binding).toString()
     }
 

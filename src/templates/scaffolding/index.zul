@@ -58,7 +58,21 @@
                 </toolbar>
                 <separator/>
                 <grid>
-                    
+                    <columns visible="false">
+                        <column label="Column" width="150px"/>
+                        <column label:"Value"/>
+                        <rows>
+                        <% props.each { p ->
+                            if(p.name != "id") {
+                                def cp = domainClass.constrainedProperties[p.name]
+                                    if(cp?.display) { %>
+                            <row>
+                               <label value="${p.naturalName}:"/>
+                               ${renderEditor(p)}
+                            </row>
+                        <% } } } %>
+                        </rows>
+                    </columns>
                 </grid>
             </groupbox>
         </vbox>
