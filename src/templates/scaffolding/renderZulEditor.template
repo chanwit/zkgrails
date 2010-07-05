@@ -89,13 +89,20 @@
     }
 
     private renderNumberEditor(domainClass, property) {
+        def comp = "textbox"
+        if(property.type == Int.class)    comp = "intbox"    else
+        if(property.type == Long.class)   comp = "longbox"   else
+        if(property.type == Double.class) comp = "doublebox" else
+        if(property.type == Float.class)  comp = "doublebox" else
+        if(property.type == BigDecimal.class) comp = "decimalbox"
+
         if (!cp) {            
             if (property.type == Byte.class) {
                 componentNames << "cbb${propName}"
                 return "<combobox id=\"cbb${propName}\" model=\"\@{cbb${propName}ByteValues}\" />"
             }
-            else {
-                return "<g:textField name=\"${property.name}\" value=\"\${fieldValue(bean: ${domainInstance}, field: '${property.name}')}\" />"
+            else {                
+                return "<${comp} id=\"txt${propName}\" value=\"\@{domainInstance.${property.name}}\" />"
             }
         }
         else {
