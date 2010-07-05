@@ -55,6 +55,8 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
     Template renderEditorTemplate
     String domainSuffix = 'Instance'
 
+    def componentNames = []
+
 
     /**
      * Used by the scripts so that they can pass in their AntBuilder
@@ -90,9 +92,14 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
             renderEditorTemplate = engine.createTemplate(templateText)
         }
 
-        def binding = [property: property, 
-                       domainClass: domainClass, 
-                       cp: cp, domainInstance:getPropertyName(domainClass)]
+        def propName = org.apache.commons.lang.StringUtils.capitalize(property.name)
+        def binding = [property: property,
+                       propName: propName,
+                       domainClass: domainClass,
+                       cp: cp,
+                       componentNames: componentNames, // list to accumulate names
+                       domainInstance:getPropertyName(domainClass)]
+
         return renderEditorTemplate.make(binding).toString()
     }
 

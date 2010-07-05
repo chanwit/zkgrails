@@ -33,25 +33,26 @@
 
     private renderStringEditor(domainClass, property) {
         if (!cp) {
-            return "<textbox id=\"fd_${property.name}\" cols: \"25\" />"
+            componentNames << "txt${propName}"
+            return "<textbox id=\"txt${propName}\" cols: \"25\" />"
         }
         else {
             if ("textarea" == cp.widget || (cp.maxSize > 250 && !cp.password && !cp.inList)) {
-                return "<textbox id=\"fd_${property.name}\" multiline=\"true\" cols=\"40\" rows=\"5\" />"
+                componentNames << "txt${propName}"
+                return "<textbox id=\"txt${propName}\" multiline=\"true\" cols=\"40\" rows=\"5\" />"
             }
             else {
                 if (cp.inList) {
-                    // TODO should be combobox
-                    return "<textbox id=\"fd_${property.name}\" cols: \"25\" />"
-                    // return "<g:select name=\"${property.name}\" from=\"\${${domainInstance}.constraints.${property.name}.inList}\" value=\"\${${domainInstance}?.${property.name}}\" valueMessagePrefix=\"${domainClass.propertyName}.${property?.name}\" ${renderNoSelection(property)} />"
+                    componentNames << "cbb${propName}"
+                    return "<combobox id=\"cbb${propName}\" model=\"\@{cbb${propName}InList}\" cols=\"25\" />"
                 }
                 else {
+                    componentNames << "txt${propName}"
                     def sb = new StringBuffer("<textbox ")
-                    sb << "id=\"fd_${property.name}\" "
-                    cp.password ? sb << "type=\"password\" " : sb << ""                    
-                    if (cp.maxSize) sb << "maxlength=\"${cp.maxSize}\" "
+                    sb << "id=\"txt${propName}\" "
+                    if (cp.password)  sb << "type=\"password\" "; else sb << ""
+                    if (cp.maxSize)   sb << "maxlength=\"${cp.maxSize}\" "
                     if (!cp.editable) sb << "readonly=\"true\" "
-                    // sb << "value=\"\${${domainInstance}?.${property.name}}\"
                     sb << " />"
                     return sb.toString()
                 }
@@ -60,7 +61,8 @@
     }
 
     private renderByteArrayEditor(domainClass, property) {
-        return "<input type=\"file\" id=\"${property.name}\" name=\"${property.name}\" />"
+        componentNames << "fup${propName}"
+        return "<fileupload id=\"fup${propName}\" label=\"Upload\" upload=\"true\" />"
     }
 
     private renderManyToOne(domainClass,property) {
@@ -87,9 +89,10 @@
     }
 
     private renderNumberEditor(domainClass, property) {
-        if (!cp) {
+        if (!cp) {            
             if (property.type == Byte.class) {
-                return "<g:select name=\"${property.name}\" from=\"\${-128..127}\" value=\"\${fieldValue(bean: ${domainInstance}, field: '${property.name}')}\" />"
+                componentNames << "cbb${propName}"
+                return "<combobox id=\"cbb${propName}\" model=\"\@{cbb${propName}ByteValues}\" />"
             }
             else {
                 return "<g:textField name=\"${property.name}\" value=\"\${fieldValue(bean: ${domainInstance}, field: '${property.name}')}\" />"
@@ -101,7 +104,7 @@
             }
             else if (cp.inList) {
                 return "<g:select name=\"${property.name}\" from=\"\${${domainInstance}.constraints.${property.name}.inList}\" value=\"\${fieldValue(bean: ${domainInstance}, field: '${property.name}')}\" valueMessagePrefix=\"${domainClass.propertyName}.${property?.name}\" ${renderNoSelection(property)} />"
-            }            
+            }
             else {
                 return "<g:textField name=\"${property.name}\" value=\"\${fieldValue(bean: ${domainInstance}, field: '${property.name}')}\" />"
             }
@@ -109,22 +112,26 @@
      }
 
     private renderBooleanEditor(domainClass, property) {
+        componentNames << "cb${propName}"
         if (!cp) {
-            return "<g:checkBox name=\"${property.name}\" value=\"\${${domainInstance}?.${property.name}}\" />"
+            return "<checkbox id=\"cb${propName}\" />"
         }
         else {
-            def sb = new StringBuffer("<g:checkBox name=\"${property.name}\" ")
-            if (cp.widget) sb << "widget=\"${cp.widget}\" ";
+            def sb = new StringBuffer("")
+            if (cp.widget) sb << "<${cp.widget} ";
+            sb << "id=\"cb${propName}\" "
             cp.attributes.each { k, v ->
                 sb << "${k}=\"${v}\" "
             }
-            sb << "value=\"\${${domainInstance}?.${property.name}}\" />"
+            sb << " />"
             return sb.toString()
         }
     }
 
     private renderDateEditor(domainClass, property) {
-        def precision = (property.type == Date.class || property.type == java.sql.Date.class || property.type == Calendar.class) ? "day" : "minute";
+        def precision = (property.type == Date.class ||
+                         property.type == java.sql.Date.class ||
+                         property.type == Calendar.class) ? "day" : "minute";
         if (!cp) {
             return "<g:datePicker name=\"${property.name}\" precision=\"${precision}\" value=\"\${${domainInstance}?.${property.name}}\" />"
         }
@@ -145,7 +152,7 @@
         }
     }
 
-    private renderSelectTypeEditor(type, domainClass,property) {
+    private renderSelectTypeEditor(type, domainClass, property) {
         if (!cp) {
             return "<g:${type}Select name=\"${property.name}\" value=\"\${${domainInstance}?.${property.name}}\" />"
         }
@@ -160,6 +167,7 @@
         }
     }
 
+    /*
     private renderNoSelection(property) {
         if (property.optional) {
             if (property.manyToOne || property.oneToOne) {
@@ -171,4 +179,5 @@
         }
         return ""
     }
+    */
 %>

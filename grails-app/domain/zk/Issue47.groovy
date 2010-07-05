@@ -3,6 +3,7 @@ package zk
 class Issue47 {
 
     String firstName
+    String position
     Double age
     Date   dob
 
@@ -13,10 +14,11 @@ class Issue47 {
     static hasMany = [comments: Comment]
 
     static constraints = {
-        firstName(nullable: true)
+        firstName(nullable: true)        
         age(nullable: true)
         dob(nullable: true)
         user(nullable: true)
+        position(inList:['Employee', 'Manager', 'Owner'])
     }
 
 }
