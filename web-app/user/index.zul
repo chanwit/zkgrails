@@ -1,4 +1,5 @@
 
+
 <?xml version="1.0" encoding="UTF-8"?>
 <?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
 <?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
@@ -16,11 +17,13 @@
         </hbox>
 
         <vbox id="scaffoldingBox">
-            <listbox id="lstuser" 
+            <listbox id="lstUser"
                      height="150px" multiple="true" rows="8">
                  <listhead>
                      
                     <listheader label="Name"/>
+                     
+                    <listheader label="Password"/>
                                           
                  </listhead>
             </listbox>
@@ -55,7 +58,12 @@
                         
                             <row>
                                <label value="Name:"/>
-                               <textbox id="fd_name"  />
+                               <textbox id="txtName"  />
+                            </row>
+                        
+                            <row>
+                               <label value="Password:"/>
+                               <textbox id="txtPassword" type="password"  />
                             </row>
                         
                         </rows>

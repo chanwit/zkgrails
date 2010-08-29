@@ -44,7 +44,7 @@
             else {
                 if (cp.inList) {
                     componentNames << "cbb${propName}"
-                    return "<combobox id=\"cbb${propName}\" model=\"\@{cbb${propName}InList}\" cols=\"25\" />"
+                    return "<combobox id=\"cbb${propName}\" model=\"@{cbb${propName}InList}\" cols=\"25\" />"
                 }
                 else {
                     componentNames << "txt${propName}"
@@ -65,7 +65,7 @@
         return "<fileupload id=\"fup${propName}\" label=\"Upload\" upload=\"true\" />"
     }
 
-    private renderManyToOne(domainClass,property) {
+    private renderManyToOne(domainClass, property) {
         if (property.association) {
             return "<g:select name=\"${property.name}.id\" from=\"\${${property.type.name}.list()}\" optionKey=\"id\" value=\"\${${domainInstance}?.${property.name}?.id}\" ${renderNoSelection(property)} />"
         }
@@ -90,19 +90,19 @@
 
     private renderNumberEditor(domainClass, property) {
         def comp = "textbox"
-        if(property.type == Int.class)    comp = "intbox"    else
-        if(property.type == Long.class)   comp = "longbox"   else
-        if(property.type == Double.class) comp = "doublebox" else
-        if(property.type == Float.class)  comp = "doublebox" else
+        if(property.type == Int.class)        comp = "intbox"     else
+        if(property.type == Long.class)       comp = "longbox"    else
+        if(property.type == Double.class)     comp = "doublebox"  else
+        if(property.type == Float.class)      comp = "doublebox"  else
         if(property.type == BigDecimal.class) comp = "decimalbox"
 
         if (!cp) {            
             if (property.type == Byte.class) {
                 componentNames << "cbb${propName}"
-                return "<combobox id=\"cbb${propName}\" model=\"\@{cbb${propName}ByteValues}\" />"
+                return "<combobox id=\"cbb${propName}\" model=\"@{cbb${propName}ByteValues}\" />"
             }
             else {                
-                return "<${comp} id=\"txt${propName}\" value=\"\@{domainInstance.${property.name}}\" />"
+                return "<${comp} id=\"txt${propName}\" value=\"@{domainInstance.${property.name}}\" />"
             }
         }
         else {

@@ -1,4 +1,5 @@
 <% import grails.persistence.Event %>
+<% import static org.apache.commons.lang.StringUtils.* %>
 <?xml version="1.0" encoding="UTF-8"?>
 <?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
 <?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
@@ -16,7 +17,7 @@
         </hbox>
 
         <vbox id="scaffoldingBox">
-            <listbox id="lst${domainClass.propertyName}" 
+            <listbox id="lst${domainClass.name}"
                      height="150px" multiple="true" rows="8">
                  <listhead>
                      <%  excludedProps = Event.allEvents.toList() << 'version'
@@ -34,7 +35,7 @@
                      <%  }   }   } %>                     
                  </listhead>
             </listbox>
-            <paging id="pag${domainClass.propertyName}" pageSize="8"/>
+            <paging id="pag${domainClass.name}" pageSize="8"/>
             <separator/>
             <groupbox>
                 <caption label="${packageName}${domainClass.name}"/>

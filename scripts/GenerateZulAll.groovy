@@ -44,6 +44,17 @@ import org.codehaus.groovy.grails.cli.CommandLineHelper
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 
+/**
+TODO
+====
+$ grails generate-zul-all zk.User
+
+ 1. Change lstuser to lstUser. Now we're using ${dc.propertyName}, need change.
+ 2. Several kinds of editors.
+ 3. Many-to-one
+
+**/
+
 class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
 
     static final Log LOG = LogFactory.getLog(DefaultZKGrailsTemplateGenerator.class)
@@ -58,10 +69,10 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
     def componentNames = []
 
 
-    /**
-     * Used by the scripts so that they can pass in their AntBuilder
-     * instance.
-     */
+    //
+    // Used by the scripts so that they can pass in their AntBuilder
+    // instance.
+    //
     DefaultZKGrailsTemplateGenerator(ClassLoader classLoader) {
         engine = new SimpleTemplateEngine(classLoader)        
 	    def suffix = ConfigurationHolder.config?.grails?.scaffolding?.templates?.domainSuffix
@@ -70,11 +81,10 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
 		}
     }
 
-    /**
-     * Creates an instance
-     */
-    DefaultZKGrailsTemplateGenerator() {
-    }
+    //
+    // Creates an instance
+    //
+    DefaultZKGrailsTemplateGenerator() { }
 
     void setResourceLoader(ResourceLoader rl) {
         LOG.info "Scaffolding template generator set to use resource loader ${rl}"
@@ -97,8 +107,12 @@ class DefaultZKGrailsTemplateGenerator implements ResourceLoaderAware {
                        propName: propName,
                        domainClass: domainClass,
                        cp: cp,
-                       componentNames: componentNames, // list to accumulate names
-                       domainInstance:getPropertyName(domainClass)]
+                       //
+                       // a list for accumulating component names
+                       //
+                       componentNames: componentNames,
+                       domainInstance: getPropertyName(domainClass)
+                      ]
 
         return renderEditorTemplate.make(binding).toString()
     }
