@@ -1,0 +1,69 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<?init class="org.zkoss.zkplus.databind.AnnotateDataBinderInit" ?>
+<?variable-resolver class="org.zkoss.zkplus.spring.DelegatingVariableResolver"?>
+<?page zscriptLanguage="GroovyGrails"?>
+
+<zk xmlns="http://www.zkoss.org/2005/zul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.zkoss.org/2005/zul http://www.zkoss.org/2005/zul/zul.xsd">
+
+    <window id="wndMain" apply="zk.userComposer">
+
+        <hbox>
+            <image src="${z.resource(dir:'images', file:'grails_logo.png')}"/>
+        </hbox>
+
+        <vbox id="scaffoldingBox">
+            <listbox id="lstuser" 
+                     height="150px" multiple="true" rows="8">
+                 <listhead>
+                     
+                    <listheader label="Name"/>
+                                          
+                 </listhead>
+            </listbox>
+            <paging id="paguser" pageSize="8"/>
+            <separator/>
+            <groupbox>
+                <caption label="zk.User"/>
+                <toolbar>
+                    <toolbarbutton id="btnAdd" label="New"
+                        image="${z.resource(dir:'images', file:'skin/database_add.png')}"
+                        width="75px"
+                    />
+                    <toolbarbutton id="btnUpdate" label="Update"
+                        image="${z.resource(dir:'images', file:'skin/database_save.png')}"
+                        width="75px"
+                    />
+                    <toolbarbutton id="btnDelete" label="Delete"
+                        image="${z.resource(dir:'images', file:'skin/database_delete.png')}"
+                        width="75px"
+                    />
+                    <toolbarbutton id="btnRefresh" label="Refresh"
+                        image="${z.resource(dir:'images', file:'skin/database_table.png')}"
+                        width="75px"
+                    />
+                </toolbar>
+                <separator/>
+                <grid>
+                    <columns visible="false">
+                        <column label="Column" width="150px"/>
+                        <column label:"Value"/>
+                        <rows>
+                        
+                            <row>
+                               <label value="Name:"/>
+                               <textbox id="fd_name"  />
+                            </row>
+                        
+                        </rows>
+                    </columns>
+                </grid>
+            </groupbox>
+        </vbox>
+
+    </window>
+
+</zk>
