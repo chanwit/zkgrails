@@ -87,8 +87,8 @@ public class ZKGrailsPageFilter extends SiteMeshFilter {
         this.filterConfig = fc;
         containerTweaks = new ContainerTweaks();
         Config config = new Config(fc);
-        //DefaultFactory defaultFactory = new DefaultFactory(config);
-        Grails5535Factory defaultFactory = new Grails5535Factory(config);//TODO revert once Sitemesh bug is fixed
+        DefaultFactory defaultFactory = new DefaultFactory(config);
+        // Grails5535Factory defaultFactory = new Grails5535Factory(config);//TODO revert once Sitemesh bug is fixed
         config.getServletContext().setAttribute("sitemesh.factory", defaultFactory);
         defaultFactory.refresh();
         FactoryHolder.setFactory(defaultFactory);
