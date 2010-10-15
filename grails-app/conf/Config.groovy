@@ -1,5 +1,5 @@
 // configuration for plugin testing - will not be included in the plugin zip
- 
+grails.urlmappings.excludePatterns='*.zul' 
 grails.views.gsp.encoding="UTF-8"
 grails.converters.encoding="UTF-8"
 log4j = {
