@@ -1,5 +1,7 @@
 class UrlMappings {
 
+    static excludes = ['*.zul']
+
     static mappings = {
       "/$controller/$action?/$id?"{
 	      constraints {
